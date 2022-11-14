@@ -17,15 +17,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -43,30 +34,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ApiService _apiService = ApiService();
-  Products _productall =Products();
-  int _counter = 0;
+  final ApiService _apiService = ApiService();
+  CryptoModel _cryptoModel = CryptoModel();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   Future<void> getApiData() async {
     final http.Response response = await _apiService.getProductAll();
-    print(response.body);
-    // late Products _productall = productAllFromJson(response.body);
-
     var _productalljson = json.decode(response.body);
-
    setState(() {
-     _productall = Products.fromJson(_productalljson);
+     _cryptoModel = CryptoModel.fromJson(_productalljson);
    });
   }
 
@@ -82,36 +58,32 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
+        child: _cryptoModel.openTrades.toString() != "null" ? Column(
 
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
               Expanded(
           child: ListView.builder(
-          itemCount: _productall.results!.length,
-              itemBuilder: (BuildContext context,int index){
-                return ListTile(
-                    leading: Text("${_productall.results![index].id}"),
-                    trailing: Text("${_productall.results![index].price}",
-                      style: TextStyle(
-                          color: Colors.green,fontSize: 15),),
-                    title:Text("${_productall.results![index].name}")
-                );
+          itemCount: _cryptoModel.openTrades!.length,
+              itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+                leading: Text("${_cryptoModel.symbol}"),
+                trailing: Text("${_cryptoModel.openTrades![index].c}",
+                  style: const TextStyle(
+                      color: Colors.green,fontSize: 15),),
+                title:Text("${_cryptoModel.openTrades![index].i}")
+            );
               }
+
           ),
         ),
           ],
-        ),
+        ) : const CircularProgressIndicator(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
     );
   }
 }
